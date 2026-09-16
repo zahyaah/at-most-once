@@ -18,6 +18,12 @@ const shared = {
   // DATE columns arrive as 'YYYY-MM-DD' strings instead of JS Dates, which would otherwise
   // be re-serialised in the server's local timezone and shift the date by a day.
   dateStrings: true,
+  // Certificate verification stays on. Disabling it would accept any certificate and leave
+  // the database credentials open to interception, which is worse than not using TLS at all,
+  // because it looks secure.
+  ...(env.DB_SSL
+    ? { ssl: { rejectUnauthorized: true, ...(env.DB_SSL_CA ? { ca: env.DB_SSL_CA } : {}) } }
+    : {}),
 };
 
 export const pool: Pool = mysql.createPool({ ...shared, connectionLimit: env.DB_POOL_SIZE });

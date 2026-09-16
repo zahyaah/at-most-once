@@ -4,7 +4,10 @@ services:
     runtime: docker
     dockerfilePath: ./Dockerfile
     plan: free
-    region: oregon
+    # Must sit in the same region as the database. Every create makes several round trips and
+    # each waiter polls every 15ms, so a cross-region hop multiplies latency rather than adding
+    # to it. Singapore is Render's Asia-Pacific region.
+    region: singapore
     # Runs SELECT 1 through the pool, so an instance that cannot reach the database fails the
     # check instead of reporting healthy while every request hangs.
     healthCheckPath: /health
@@ -31,4 +34,10 @@ services:
       - key: DB_NAME
         sync: false
       - key: CORS_ALLOWED_ORIGINS
+        sync: false
+      # Aiven rejects plaintext connections. DB_SSL_CA is the CA certificate from the Aiven
+      # console, pasted whole including the BEGIN and END lines.
+      - key: DB_SSL
+        value: "true"
+      - key: DB_SSL_CA
         sync: false

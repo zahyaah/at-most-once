@@ -9,6 +9,21 @@ const envSchema = z.object({
   DB_NAME: z.string().min(1),
   DB_POOL_SIZE: z.coerce.number().int().positive().max(200).default(20),
 
+  /**
+   * Managed providers require TLS and reject plaintext connections. Off by default because
+   * the local container does not serve TLS.
+   */
+  DB_SSL: z
+    .enum(["true", "false"])
+    .default("false")
+    .transform((value) => value === "true"),
+
+  /**
+   * PEM contents of the provider's CA certificate. Without it the connection falls back to
+   * the system trust store, which does not include Aiven's own CA, so verification fails.
+   */
+  DB_SSL_CA: z.string().optional(),
+
   // Reserved for lease renewals, which must not queue behind the transactions they supervise.
   // Small on purpose: these are single short statements, never held across work.
   DB_LEASE_POOL_SIZE: z.coerce.number().int().positive().max(50).default(5),

@@ -5,3 +5,8 @@ dist/
 
 # Local-only working directories, not part of this project.
 interview-prep/
+
+# TLS material. Never belongs in the repository.
+*.pem
+*.crt
+.env.local-docker
